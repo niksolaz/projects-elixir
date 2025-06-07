@@ -6,6 +6,25 @@ defmodule Identicon do
     |> build_grid()
     |> filter_odd_sqares()
     |> build_pixel_map()
+    |> draw_image()
+    |> save_image(input)
+  end
+
+  def save_image(image, filename) do
+    case File.write("#{filename}.png", image) do
+      {:error, err} -> IO.puts("Failed to save image #{err}")
+      :ok -> IO.puts("Saved #{filename}.png")
+    end
+  end
+
+  def draw_image(%Identicon.Image{color: color, pixel_map: pixel_map}) do
+    image = :egd.create(250, 250)
+    fill = :egd.color(color)
+
+    Enum.each(pixel_map, fn {start, stop} ->
+      :egd.filledRectangle(image, start, stop, fill)
+    end)
+    :egd.render(image)
   end
 
   def build_grid(%Identicon.Image{hex: hex} = image) do
